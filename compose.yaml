@@ -1,18 +1,20 @@
 services:
   agent:
-    image: ghcr.io/felipemayerdev/agent-in-browser:latest
-    build:
-      context: .
-      args:
-        CLAUDE_VERSION: ${CLAUDE_VERSION:-latest}
-        TTYD_VERSION: ${TTYD_VERSION:-1.7.7}
+    image: buildpack-deps:bookworm-scm
     restart: unless-stopped
+    user: "${PUID:-1000}:${PGID:-1000}"
+    command: /start.sh
     ports:
       - "${BIND_ADDR:-0.0.0.0}:${PORT:-7681}:7681"
     environment:
-      TTYD_CREDENTIAL: ${TTYD_CREDENTIAL:-}
+      HOME: /home/agent
+      PATH: /home/agent/.local/bin:/home/agent/.opencode/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      TTYD_VERSION: ${TTYD_VERSION:-1.7.7}
+      AUTH_USER: ${AUTH_USER:-}
+      AUTH_PASSWORD: ${AUTH_PASSWORD:-}
       TTYD_ARGS: ${TTYD_ARGS:-}
-      AGENT_CMD: ${AGENT_CMD:-claude}
+      AGENT: ${AGENT:-claude}
     volumes:
-      - ${CLAUDE_DATA:-./data/claude}:/home/node/.claude
+      - ./start.sh:/start.sh:ro
+      - ${DATA:-./data}:/home/agent
       - ${WORKSPACE:-./workspace}:/workspace
