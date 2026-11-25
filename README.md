@@ -1,8 +1,8 @@
 # agent-in-browser
 
-Claude Code, opencode ou Codex (TUI) no navegador via [ttyd](https://github.com/tsl0922/ttyd), com Docker Compose.
+Claude Code, opencode or Codex (TUI) in the browser via [ttyd](https://github.com/tsl0922/ttyd), with Docker Compose.
 
-## Uso
+## Usage
 
 ```sh
 cp .env.example .env    # AGENT, AUTH_USER, AUTH_PASSWORD, PORT, WORKSPACE
@@ -10,38 +10,38 @@ mkdir -p data workspace
 docker compose up -d
 ```
 
-Abra `http://<host>:7681` (ou a `PORT` definida).
+Open `http://<host>:7681` (or whatever `PORT` you set).
 
-## Como funciona
+## How it works
 
-- **Sem build:** sem Dockerfile e sem CI. O compose usa a imagem pública `buildpack-deps:bookworm-scm` (já tem curl, git e bash).
-- Na primeira subida o `start.sh` baixa o ttyd e o agente escolhido pro volume `DATA`. Nas próximas, só inicia.
-- `AGENT=claude|opencode|codex`, cada um pelo instalador ou binário oficial.
-- Login do navegador em `AUTH_USER` / `AUTH_PASSWORD`. Vazio = sem senha.
+- **No build:** no Dockerfile, no CI. Compose uses the public `buildpack-deps:bookworm-scm` image (ships with curl, git and bash).
+- On first start, `start.sh` downloads ttyd and the selected agent into the `DATA` volume. Later starts just launch it.
+- `AGENT=claude|opencode|codex`, each installed from its official installer/binary.
+- Browser login set via `AUTH_USER` / `AUTH_PASSWORD`. Empty = no password.
 
-## Configuração (`.env`)
+## Configuration (`.env`)
 
-| Variável | Padrão | Descrição |
+| Variable | Default | Description |
 |---|---|---|
-| `AGENT` | `claude` | `claude`, `opencode` ou `codex` |
-| `AUTH_USER` / `AUTH_PASSWORD` | vazio | login do navegador (basic auth do ttyd) |
-| `BIND_ADDR` / `PORT` | `0.0.0.0` / `7681` | onde escuta no host. Use o IP do Tailscale/VPN pra não expor na LAN |
-| `TTYD_ARGS` | vazio | flags extras do ttyd, ex: `-t fontSize=16` |
-| `TTYD_VERSION` | `1.7.7` | versão do ttyd baixada |
-| `PUID` / `PGID` | `1000` | usuário que roda no container (dono de `DATA` e `WORKSPACE`) |
-| `DATA` | `./data` | HOME do container: binários, login e config do agente |
-| `WORKSPACE` | `./workspace` | pasta montada em `/workspace`, onde o agente trabalha |
+| `AGENT` | `claude` | `claude`, `opencode` or `codex` |
+| `AUTH_USER` / `AUTH_PASSWORD` | empty | browser login (ttyd basic auth) |
+| `BIND_ADDR` / `PORT` | `0.0.0.0` / `7681` | host address/port to listen on. Use your Tailscale/VPN IP to keep it off the LAN |
+| `TTYD_ARGS` | empty | extra ttyd flags, e.g. `-t fontSize=16` |
+| `TTYD_VERSION` | `1.7.7` | ttyd version to download |
+| `PUID` / `PGID` | `1000` | user the container runs as (must own `DATA` and `WORKSPACE`) |
+| `DATA` | `./data` | container HOME: binaries, agent login and config |
+| `WORKSPACE` | `./workspace` | folder mounted at `/workspace`, where the agent works |
 
-## Login do agente
+## Agent login
 
-Feito uma vez e salvo em `DATA`.
+Done once, persisted in `DATA`.
 
-- **claude:** pede `/login` na própria tela.
+- **claude:** prompts for `/login` in the TUI.
 - **opencode:** `docker compose exec agent opencode auth login`
 - **codex:** `docker compose exec agent codex login --device-auth`
 
-## Notas
+## Notes
 
-- Cada aba abre um processo novo do agente. Fechar a aba encerra a sessão.
-- Claude e opencode se atualizam sozinhos. Pra reinstalar ou atualizar qualquer um, apague o binário em `data/.local/bin` (ou `data/.opencode`) e rode `docker compose restart`.
-- Trocar de `AGENT` só exige `docker compose up -d`. O novo agente é baixado na subida.
+- Each browser tab spawns a new agent process; closing the tab ends the session.
+- Claude and opencode auto-update. To reinstall/update any agent, delete its binary in `data/.local/bin` (or `data/.opencode`) and run `docker compose restart`.
+- Switching `AGENT` just needs `docker compose up -d`; the new agent is downloaded on start.
