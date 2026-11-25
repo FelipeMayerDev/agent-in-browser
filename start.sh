@@ -1,5 +1,5 @@
 #!/bin/sh
-# Na primeira subida baixa ttyd e o agente pro $HOME (volume); depois só inicia.
+# On first start, downloads ttyd and the agent into $HOME (volume); afterwards just launches.
 set -e
 bin="$HOME/.local/bin"
 arch="$(uname -m)"
@@ -17,7 +17,7 @@ if ! command -v "$AGENT" >/dev/null; then
     opencode) curl -fsSL https://opencode.ai/install | bash ;;
     codex)    curl -fsSL "https://github.com/openai/codex/releases/latest/download/codex-$arch-unknown-linux-musl.tar.gz" \
                 | tar -xz -O > "$bin/codex" && chmod +x "$bin/codex" ;;
-    *)        echo "AGENT inválido: $AGENT (claude|opencode|codex)" >&2; exit 1 ;;
+    *)        echo "invalid AGENT: $AGENT (claude|opencode|codex)" >&2; exit 1 ;;
   esac
 fi
 
