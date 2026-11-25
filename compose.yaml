@@ -1,0 +1,17 @@
+services:
+  agent:
+    build:
+      context: .
+      args:
+        CLAUDE_VERSION: ${CLAUDE_VERSION:-latest}
+        TTYD_VERSION: ${TTYD_VERSION:-1.7.7}
+    restart: unless-stopped
+    ports:
+      - "${BIND_ADDR:-0.0.0.0}:${PORT:-7681}:7681"
+    environment:
+      TTYD_CREDENTIAL: ${TTYD_CREDENTIAL:-}
+      TTYD_ARGS: ${TTYD_ARGS:-}
+      AGENT_CMD: ${AGENT_CMD:-claude}
+    volumes:
+      - ${CLAUDE_DATA:-./data/claude}:/home/node/.claude
+      - ${WORKSPACE:-./workspace}:/workspace
